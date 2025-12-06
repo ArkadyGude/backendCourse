@@ -23,7 +23,11 @@ async def custom_swagger_ui_html():
     )
 
 
-@app.get("/hotels")
+@app.get(
+    "/hotels",
+    summary="Получаем данные об отеле",
+    description="Получаем данные об отеле",
+)
 def get_hotels(
     hotel_id: int | None = Query(default=None, description="ID"),
     title: str | None = Query(default=None, description="Навзвание отеля"),
@@ -38,14 +42,22 @@ def get_hotels(
     return hotels_
 
 
-@app.post("/hotels")
+@app.post(
+    "/hotels",
+    summary="Вносим данные о новом отеле",
+    description="Вносим данные о новом отеле",
+)
 def create_hotel(title: str = Body(embed=True), name: str = Body(embed=True)):
     global hotels
     hotels.append({"id": hotels[-1]["id"] + 1, "title": title, "name": name})
     return {"status": "OK"}
 
 
-@app.put("/hotels/{hotel_id}")
+@app.put(
+    "/hotels/{hotel_id}",
+    summary="Обновление данных об отеле",
+    description="Обновляем данные об отеле",
+)
 def update_hotel(hotel_id: int, title: str = Body(), name: str = Body()):
     global hotels
     # Поиск отеля по ID
@@ -55,7 +67,11 @@ def update_hotel(hotel_id: int, title: str = Body(), name: str = Body()):
     return {"status": "OK"}
 
 
-@app.patch("/hotels/{hotel_id}")
+@app.patch(
+    "/hotels/{hotel_id}",
+    summary="Частичное обновление данных об отеле",
+    description="Частично обновляем данные об отеле: можно отправить name, а можно title",
+)
 def partial_update_hotel(
     hotel_id: int,
     title: str | None = Body(None),
@@ -70,7 +86,11 @@ def partial_update_hotel(
     return {"status": "OK"}
 
 
-@app.delete("/hotels/{hotel_id}")
+@app.delete(
+    "/hotels/{hotel_id}",
+    summary="Удаление данных об отеле",
+    description="Удаляем данные об отеле",
+)
 def delete_hotel(hotel_id: int):
     global hotels
     hotels = [hotel for hotel in hotels if hotel["id"] != hotel_id]
