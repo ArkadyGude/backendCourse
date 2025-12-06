@@ -46,39 +46,28 @@ def create_hotel(title: str = Body(embed=True), name: str = Body(embed=True)):
 
 
 @app.put("/hotels/{hotel_id}")
-def update_hotel(
-    hotel_id: int, title: str = Body(embed=True), name: str = Body(embed=True)
-):
+def update_hotel(hotel_id: int, title: str = Body(), name: str = Body()):
     global hotels
     # Поиск отеля по ID
-    for i, hotel in enumerate(hotels):
-        if hotel["id"] == hotel_id:
-            # Обновление отеля
-            if title is not None:
-                hotels[i]["title"] = title
-            if name is not None:
-                hotels[i]["name"] = name
-            return {"status": "OK", "updated_hotel": hotels[i]}
-
-    # Если отель не найден
-    return {"status": "ERROR", "message": "Hotel not found"}
+    hotel = [hotel for hotel in hotels if hotel["id"] == hotel_id][0]
+    hotel["title"] = title
+    hotel["name"] = name
+    return {"status": "OK"}
 
 
 @app.patch("/hotels/{hotel_id}")
 def partial_update_hotel(
     hotel_id: int,
-    title: str | None = Body(default=None, embed=True),
-    name: str | None = Body(default=None, embed=True),
+    title: str | None = Body(None),
+    name: str | None = Body(None),
 ):
     global hotels
-    for i, hotel in enumerate(hotels):
-        if hotel["id"] == hotel_id:
-            if title is not None:
-                hotels[i]["title"] = title
-            if name is not None:
-                hotels[i]["name"] = name
-            return {"status": "OK", "updated_hotel": hotels[i]}
-    return {"status": "ERROR", "message": "Hotel not found"}
+    hotel = [hotel for hotel in hotels if hotel["id"] == hotel_id][0]
+    if title:
+        hotel["title"] = title
+    if name:
+        hotel["name"] = name
+    return {"status": "OK"}
 
 
 @app.delete("/hotels/{hotel_id}")
