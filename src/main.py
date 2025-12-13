@@ -1,8 +1,13 @@
+import sys
+from pathlib import Path
+
 from fastapi import FastAPI
+from fastapi.openapi.docs import get_swagger_ui_html
 import uvicorn
 
-from fastapi.openapi.docs import get_swagger_ui_html
-from hotels import router as router_hotels
+sys.path.append(str(Path(__file__).parent.parent))
+
+from src.api.hotels import router as router_hotels
 
 app = FastAPI(docs_url=None)
 
