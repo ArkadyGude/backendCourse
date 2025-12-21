@@ -1,6 +1,6 @@
 from fastapi import Query, APIRouter, Body
 
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, func
 
 from src.api.dependencies import PaginationDep
 from src.database import async_session_maker
@@ -13,31 +13,27 @@ router = APIRouter(prefix="/hotels", tags=["Отели"])
 @router.get("")
 async def get_hotels(
     pagination: PaginationDep,
-    hotel_id: int | None = Query(default=None, description="ID отеля"),
+    location: str | None = Query(default=None, description="Локация"),
     title: str | None = Query(default=None, description="Навзвание отеля"),
 ):
     per_page = pagination.per_page or 5
     async with async_session_maker() as session:
         query = select(HotelsOrm)
-        if hotel_id:
-            query = query.filter_by(id=hotel_id)
-        if title:
-            query = query.filter_by(title=title)
-
-        query = (
-            query
-            .limit(per_page)
-            .offset(per_page * (pagination.page - 1))
+        if location:
+            query = query.filter(
+                func.lower(HotelsOrm.location).contains(location.strip().lower())
             )
+        if title:
+            query = query.filter(
+                func.lower(HotelsOrm.title).contains(title.strip().lower())
+            )
+
+        query = query.limit(per_page).offset(per_page * (pagination.page - 1))
+        print(query.compile(compile_kwargs={"literal_binds": True}))
         result = await session.execute(query)
         hotels = result.scalars().all()
         # print(type(hotels), hotels)
         return hotels
-
-    # if pagination.page and pagination.per_page:
-    #     return hotels_[pagination.per_page * (pagination.page - 1) :][
-    #         : pagination.per_page
-    #     ]
 
 
 @router.post("")
@@ -48,14 +44,14 @@ async def create_hotel(
                 "summary": "Сочи",
                 "value": {
                     "title": "Отель Сочи 5 звезд у моря",
-                    "location": "ул. Моря, 1",
+                    "location": "Сочи, ул. Моря, 1",
                 },
             },
             "2": {
                 "summary": "Дубай",
                 "value": {
                     "title": "Отель Дубай У фонтана",
-                    "location": "ул. Шейха, 2",
+                    "location": "Дубай, ул. Шейха, 2",
                 },
             },
         }
